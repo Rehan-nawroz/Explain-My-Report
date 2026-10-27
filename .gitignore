@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+dist
+build
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.env.*.local
+freebuff*.json
+opencode.jsonc
