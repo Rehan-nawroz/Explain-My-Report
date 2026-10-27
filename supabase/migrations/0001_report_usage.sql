@@ -13,23 +13,30 @@ create index if not exists report_usage_user_created_idx
 alter table public.report_usage enable row level security;
 
 -- Users may read only their own usage rows (for the quota counter).
+drop policy if exists "read own usage" on public.report_usage;
 create policy "read own usage" on public.report_usage
   for select to authenticated
   using ((select auth.uid()) = user_id);
 
 -- Users may insert only their own usage rows (reservation goes through
 -- the RLS-scoped session, so no service key is needed for reserving).
+drop policy if exists "insert own usage" on public.report_usage;
 create policy "insert own usage" on public.report_usage
   for insert to authenticated
   with check ((select auth.uid()) = user_id);
 
 -- Deliberately NO update or delete policies: clients cannot erase their
 -- own usage history, which would bypass the 3-per-day quota.
--- (Refunds use the server-side secret key only — Task 7.)
+-- (Refunds use the server-side secret key only.)
 
 grant select, insert on table public.report_usage to authenticated;
 
--- Atomic quota reserve (Task 7): ONE statement that counts in-window rows
+-- Refunds run from the server with the secret key (role service_role): it
+-- needs to read/count and delete the exact usage row. No insert for it —
+-- reservations always go through the RLS-scoped user session.
+grant select, delete on table public.report_usage to service_role;
+
+-- Atomic quota reserve ONE statement that counts in-window rows
 -- and inserts, serialized per user with an advisory transaction lock so
 -- two concurrent requests cannot both take the last free slot.
 -- SECURITY INVOKER: RLS still applies to both the count and the insert.
