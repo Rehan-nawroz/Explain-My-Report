@@ -1,1 +1,130 @@
 @import "tailwindcss";
+
+/*
+ * Clinical Intelligence Dark — design tokens from
+ * docs/frontend-planing/stitch_explain_my_report_web_app/clinical_intelligence_dark/DESIGN.md
+ *
+ * Tailwind v4 is CSS-first: these variables generate bg-*, text-*, border-*
+ * utilities, so components never hard-code hex values.
+ */
+@theme {
+  --color-canvas: #131314;
+  --color-surface: #1e1f20;
+  --color-surface-ambient: #18191a;
+  --color-surface-elevated: #282a2c;
+  --color-surface-high: #343536;
+  --color-inset: #161718;
+
+  --color-line: #333537;
+  --color-line-strong: #3c4043;
+  --color-line-soft: #282a2c;
+
+  --color-ink: #e3e2e3;
+  --color-ink-strong: #f4f4f4;
+  --color-ink-soft: #c4c7c5;
+  --color-ink-muted: #8e918f;
+
+  --color-primary: #2dd4bf;
+  --color-primary-bright: #57f1db;
+  --color-routine: #34d399;
+  --color-attention: #fcd34d;
+  --color-unclear: #93c5fd;
+  --color-danger: #ffb4ab;
+  --color-disclaimer: #1a232b;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: var(--font-mono-code), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+
+  --radius-card: 1rem;
+
+  /* Report body sizes from the design system (15/24 body-md, 13/20 body-sm). */
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.5rem;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.25rem;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+    color: #eafffb;
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-primary) 70%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* Calm scrollbars inside the report textarea and quote blocks. */
+  textarea::-webkit-scrollbar,
+  .scroll-quiet::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  textarea::-webkit-scrollbar-thumb,
+  .scroll-quiet::-webkit-scrollbar-thumb {
+    background-color: #3a3d3f;
+    border-radius: 9999px;
+    border: 3px solid var(--color-inset);
+  }
+  textarea::-webkit-scrollbar-track,
+  .scroll-quiet::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* One orchestrated entrance — not per-card scatter (design skill guidance). */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility rise-in {
+  animation: rise-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes halo {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.9;
+  }
+}
+
+@utility halo-pulse {
+  animation: halo 2.8s ease-in-out infinite;
+}
