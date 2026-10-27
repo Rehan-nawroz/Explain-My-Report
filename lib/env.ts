@@ -34,12 +34,20 @@ export function requireGeminiEnv(): { apiKey: string; model: string } {
 /** Supabase credentials for auth + quota (Tasks 6–8). */
 export function requireSupabaseEnv(): {
   url: string;
-  anonKey: string;
-  serviceRoleKey: string;
+  publishableKey: string;
+  secretKey: string;
 } {
+  const publishable =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; // legacy name fallback
+  if (!publishable) {
+    throw new ConfigError(
+      "Missing required environment variable: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. Set it in .env (local) or the Vercel dashboard (deployed)."
+    );
+  }
   return {
     url: requireEnv("NEXT_PUBLIC_SUPABASE_URL"),
-    anonKey: requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
-    serviceRoleKey: requireEnv("SUPABASE_SERVICE_ROLE_KEY"),
+    publishableKey: publishable,
+    secretKey: requireEnv("SUPABASE_SERVICE_ROLE_KEY"), // dashboard's secret key / service role
   };
 }
