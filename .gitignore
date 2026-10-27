@@ -14,3 +14,4 @@ freebuff*.json
 opencode.jsonc
 /docs/superpowers
 next-env.d.ts
+/docs
