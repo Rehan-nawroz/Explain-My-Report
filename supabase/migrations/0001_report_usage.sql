@@ -28,3 +28,47 @@ create policy "insert own usage" on public.report_usage
 -- (Refunds use the server-side secret key only — Task 7.)
 
 grant select, insert on table public.report_usage to authenticated;
+
+-- Atomic quota reserve (Task 7): ONE statement that counts in-window rows
+-- and inserts, serialized per user with an advisory transaction lock so
+-- two concurrent requests cannot both take the last free slot.
+-- SECURITY INVOKER: RLS still applies to both the count and the insert.
+create or replace function public.try_reserve(p_kind text)
+returns jsonb
+language plpgsql
+security invoker
+as $$
+declare
+  v_count bigint;
+  v_oldest timestamptz;
+  v_id uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  -- Serialize concurrent reserves for this user for the rest of the transaction.
+  perform pg_advisory_xact_lock(hashtextextended('report_usage:' || auth.uid()::text, 0));
+
+  select count(*), min(created_at)
+    into v_count, v_oldest
+    from public.report_usage
+   where user_id = auth.uid()
+     and created_at > now() - interval '24 hours';
+
+  if v_count >= 3 then
+    -- At limit: report when the oldest slot ages out. No insert.
+    return jsonb_build_object('usage_id', null, 'oldest', v_oldest);
+  end if;
+
+  insert into public.report_usage (user_id, kind)
+  values (auth.uid(), p_kind)
+  returning id into v_id;
+
+  return jsonb_build_object('usage_id', v_id, 'oldest', null);
+end;
+$$;
+
+-- Callable by signed-in users only (security invoker would contain it anyway).
+revoke execute on function public.try_reserve(text) from public;
+grant execute on function public.try_reserve(text) to authenticated;
