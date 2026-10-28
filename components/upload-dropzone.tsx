@@ -2,13 +2,81 @@
 
 import { useRef, useState } from "react";
 import { Image as ImageIcon, Upload, X } from "lucide-react";
-import { IMAGE_MIME_TYPES, MAX_IMAGE_BYTES } from "@/lib/limits";
+import {
+  IMAGE_MIME_TYPES,
+  MAX_IMAGE_BYTES,
+  SAFE_IMAGE_UPLOAD_BYTES,
+} from "@/lib/limits";
 import type { ImageMime, UploadedImage } from "@/types/report";
 
 function formatSize(bytes: number): string {
   return bytes >= 1024 * 1024
     ? `${(bytes / (1024 * 1024)).toFixed(1)} MB`
     : `${Math.round(bytes / 1024)} KB`;
+}
+
+const MAX_COMPRESSED_EDGE = 2400;
+
+function decodedBytes(base64: string): number {
+  return Math.round((base64.length * 3) / 4);
+}
+
+/**
+ * Re-encode a photo so its base64 payload fits Vercel's 4.5 MB request cap
+ * (a 4 MB file becomes ~5.3 MB encoded). Keeps the longest edge at 2400px,
+ * then trades quality, then size, until the encoded bytes fit. The server
+ * still re-validates type and size because client checks are never trusted.
+ */
+async function compressImage(
+  file: File,
+): Promise<{ base64: string; size: number }> {
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = objectUrl;
+    await image.decode();
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas is unavailable.");
+
+    const longestEdge = Math.max(image.naturalWidth, image.naturalHeight);
+    const attempts = [
+      { scale: 1, quality: 0.86 },
+      { scale: 1, quality: 0.72 },
+      { scale: 0.85, quality: 0.78 },
+      { scale: 0.7, quality: 0.72 },
+      { scale: 0.55, quality: 0.65 },
+    ];
+
+    for (const attempt of attempts) {
+      const edge = Math.min(
+        MAX_COMPRESSED_EDGE,
+        Math.round(longestEdge * attempt.scale),
+      );
+      const ratio = edge / longestEdge;
+      const width = Math.max(1, Math.round(image.naturalWidth * ratio));
+      const height = Math.max(1, Math.round(image.naturalHeight * ratio));
+
+      canvas.width = width;
+      canvas.height = height;
+      // White matte: transparent PNGs would otherwise go black as JPEG.
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+      context.drawImage(image, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL("image/jpeg", attempt.quality);
+      const base64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
+      const size = decodedBytes(base64);
+      if (size <= SAFE_IMAGE_UPLOAD_BYTES) {
+        return { base64, size };
+      }
+    }
+
+    throw new Error("Image could not be compressed under the upload limit.");
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 /**
@@ -40,19 +108,30 @@ export default function UploadDropzone({
       return;
     }
 
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
+    try {
+      let base64: string;
+      let mimeType = file.type as ImageMime;
+      let size = file.size;
 
-    onChange({
-      base64: dataUrl.slice(dataUrl.indexOf(",") + 1),
-      mimeType: file.type as ImageMime,
-      name: file.name,
-      size: file.size,
-    });
+      if (file.size > SAFE_IMAGE_UPLOAD_BYTES) {
+        const compressed = await compressImage(file);
+        base64 = compressed.base64;
+        mimeType = "image/jpeg";
+        size = compressed.size;
+      } else {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+        base64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
+      }
+
+      onChange({ base64, mimeType, name: file.name, size });
+    } catch {
+      onError("That photo couldn't be prepared. Try a different image.");
+    }
   }
 
   return (
@@ -93,6 +172,9 @@ export default function UploadDropzone({
         </p>
         <p className="mt-1 text-caption text-ink-muted">
           Supports PNG, JPG, or WEBP (up to 4 MB)
+        </p>
+        <p className="mt-0.5 text-[11px] text-ink-muted">
+          Large photos are compressed automatically before sending.
         </p>
         <span className="mt-4 rounded-full border border-line px-4 py-1.5 text-caption text-ink transition-colors hover:bg-surface-elevated">
           Browse files
