@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { TriangleAlert } from "lucide-react";
 import LegalPage, {
   LegalList,
@@ -39,9 +40,9 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          The app uses an AI model to turn medical-report language into a
-          plain-language summary, explanations of individual findings, and
-          questions you can ask your clinician.
+          The app uses Google&apos;s Gemini API to turn medical-report language
+          into a plain-language summary, explanations of individual findings,
+          and questions you can ask your clinician.
         </p>
         <LegalList>
           <li>
@@ -60,6 +61,17 @@ const sections: LegalSection[] = [
             here.
           </li>
         </LegalList>
+        <p>
+          Google&apos;s Gemini API terms also apply to the underlying AI
+          processing, including its age requirements and acceptable-use rules.
+          See the <Link
+            href="/privacy#how-its-processed"
+            className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:text-primary-bright"
+          >
+            Privacy Policy
+          </Link>{" "}
+          for how report content is handled.
+        </p>
       </>
     ),
   },
@@ -156,6 +168,16 @@ const sections: LegalSection[] = [
           Nothing in these terms limits liability that cannot be limited by
           law. You use the app at your own risk.
         </p>
+        <p>
+          Questions about these terms can be raised through the contact
+          channel listed in the <Link
+            href="/privacy#contact"
+            className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:text-primary-bright"
+          >
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </>
     ),
   },
@@ -168,7 +190,7 @@ export default function TermsPage() {
       badge="The rules for using this app"
       title="Terms of Service"
       lede="Plain-language terms for an educational tool — what it does, what it does not do, and what we expect from each other."
-      updated="October 2026"
+      updated="October 28, 2026"
       sections={sections}
       notice={
         <div className="rounded-2xl border border-attention/30 bg-attention/[0.06] p-5 md:p-6">

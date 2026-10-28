@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 const trustPoints = [
   {
     icon: <ShieldCheck className="h-5 w-5" aria-hidden />,
-    title: "Your report is never stored",
+    title: "We don't store your report",
     text: "Text and photos are used only to generate your explanation. We keep no report content — just a usage record (input type and time) so the daily limit works.",
   },
   {
@@ -50,8 +50,16 @@ const sections: LegalSection[] = [
         <LegalList>
           <li>
             <strong className="font-medium text-ink">Account.</strong> Your
-            email address, from Google sign-in or the emailed sign-in link. It
-            identifies your account — no password is created or stored.
+            email address from Google sign-in or the emailed sign-in link, plus
+            any basic profile details Google chooses to share (such as your
+            name and profile picture). These identify your account; no password
+            is created or stored.
+          </li>
+          <li>
+            <strong className="font-medium text-ink">Session cookie.</strong>{" "}
+            Supabase sets a sign-in cookie so you stay signed in. It is
+            required for the service and is not used for advertising or
+            analytics.
           </li>
           <li>
             <strong className="font-medium text-ink">Usage records.</strong>{" "}
@@ -66,13 +74,10 @@ const sections: LegalSection[] = [
             API. It is not written to our database and is not kept by the app
             afterwards.
           </li>
-          <li>
-            <strong className="font-medium text-ink">
-              Standard server logs.
-            </strong>{" "}
-            Like any website, our hosting provider may record basic technical
-            data (IP address, browser type, timestamps) to serve the site and
-            keep it secure.
+          <li>            <strong className="font-medium text-ink">Standard server logs.</strong>{" "}
+            Like any website, our hosting and authentication providers may
+            record basic technical data (IP address, browser type, timestamps)
+            to serve the site, sign you in, and keep it secure.
           </li>
         </LegalList>
         <LegalCallout>
@@ -114,7 +119,7 @@ const sections: LegalSection[] = [
           </div>
           <div className="rounded-xl border border-line-soft bg-surface-ambient p-3.5">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-              Step 3 — Nothing is kept
+              Step 3 — Nothing is kept by us
             </p>
             <p className="mt-1 text-caption leading-relaxed text-ink-soft">
               The explanation appears in your browser. Leaving or refreshing
@@ -125,10 +130,46 @@ const sections: LegalSection[] = [
         </div>
         <p>
           Because the report is processed by a third-party AI provider, that
-          processing is also governed by Google&apos;s terms and privacy
-          policy. If you are not comfortable with that, please do not submit a
+          processing is also governed by{" "}
+          <a
+            href="https://ai.google.dev/gemini-api/terms"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:text-primary-bright"
+          >
+            Google&apos;s Gemini API terms
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:text-primary-bright"
+          >
+            Google&apos;s privacy policy
+          </a>
+          . If you are not comfortable with that, please do not submit a
           report.
         </p>
+        <LegalCallout>
+          <strong className="font-medium text-ink">
+            Important — free-tier AI processing.
+          </strong>{" "}
+          Explain My Report currently uses Google&apos;s Gemini API. Under
+          Google&apos;s terms for unpaid API usage, Google may use the content
+          you submit (report text or images) to improve and develop its
+          products and services, and human reviewers may read, annotate, or
+          process it. Google&apos;s terms also state that sensitive,
+          confidential, or personal information should not be submitted to
+          unpaid services. Remove names, dates of birth, and other identifiers
+          before submitting, and do not submit a report if you are not
+          comfortable with this. Google&apos;s terms also require paid API
+          processing for apps made available in the EEA, UK, or Switzerland;
+          until we enable that, please do not submit reports from those
+          regions. We are working to move processing to a paid API plan, under
+          which Google does not use prompts or responses to improve its
+          products.
+        </LegalCallout>
       </>
     ),
   },
@@ -152,16 +193,15 @@ const sections: LegalSection[] = [
             stored here.
           </li>
           <li>
-            <strong className="font-medium text-ink">
-              Our hosting provider
-            </strong>{" "}
-            — serves the website and keeps standard request logs.
+            <strong className="font-medium text-ink">Vercel</strong> — hosts
+            the website and keeps standard request logs.
           </li>
         </LegalList>
         <p>
-          Each provider handles data under its own terms and privacy policy,
-          and we do not control their retention practices beyond what those
-          policies describe.
+          These providers may process data in countries other than yours,
+          under their own terms and privacy policies. We do not control their
+          retention practices beyond what those policies describe, and we do
+          not sell your data or share it for advertising.
         </p>
       </>
     ),
@@ -207,13 +247,18 @@ const sections: LegalSection[] = [
           is discarded.
         </li>
         <li>
-          You choose what to paste or upload. The app does not remove names or
-          other identifiers for you; if you prefer not to submit them, remove
-          them before you press Explain.
+          You choose what to paste or upload. The app does not remove names,
+          other identifiers, or photo metadata for you; if you prefer not to
+          submit them, remove them before you press Explain.
         </li>
         <li>
-          Your account record is your email address plus usage timestamps, kept
-          for as long as your account exists.
+          Your account record is your email address, basic Google profile
+          details (if Google shares them), sign-in method, and usage
+          timestamps, kept for as long as your account exists.
+        </li>
+        <li>
+          You can ask for your account and its usage records to be deleted
+          through the contact channel in section 7.0.
         </li>
         <li>You can stop using the service at any time.</li>
       </LegalList>
@@ -232,6 +277,36 @@ const sections: LegalSection[] = [
       </p>
     ),
   },
+  {
+    id: "contact",
+    number: "7.0",
+    label: "Contact",
+    title: "Contact",
+    body: (
+      <>
+        <p>
+          Explain My Report is maintained as an independent project. Questions
+          about this policy, or requests to delete your account and usage
+          records, can be raised through the project&apos;s issue tracker:
+        </p>
+        <p>
+          <a
+            href="https://github.com/Rehan-nawroz/Explain-My-Report"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-primary underline decoration-primary/40 underline-offset-4 hover:text-primary-bright"
+          >
+            github.com/Rehan-nawroz/Explain-My-Report
+          </a>
+        </p>
+        <p>
+          Please do not include report content, names, or other personal
+          information in a public issue. Ask for a private channel and one will
+          be arranged.
+        </p>
+      </>
+    ),
+  },
 ];
 
 export default function PrivacyPage() {
@@ -241,7 +316,7 @@ export default function PrivacyPage() {
       badge="How this app handles your data"
       title="Privacy Policy"
       lede="What Explain My Report keeps, what it sends to the AI provider, and what it never stores — in plain language."
-      updated="October 2026"
+      updated="October 28, 2026"
       sections={sections}
       notice={
         <div className="grid gap-4 sm:grid-cols-2">
