@@ -1,8 +1,9 @@
+import { IMAGE_MIME_TYPES, MAX_IMAGE_BYTES, MAX_TEXT_CHARS } from "@/lib/limits";
 import type { ExplainPayload, ImageMime } from "@/types/report";
 
-export const MAX_TEXT_CHARS = 20000;
-export const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // 4 MB
-export const IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
+// Re-exported so existing imports keep working; the source of truth is
+// lib/limits.ts, which the browser bundle can import safely.
+export { IMAGE_MIME_TYPES, MAX_IMAGE_BYTES, MAX_TEXT_CHARS };
 
 export type ValidationResult =
   | { ok: true; payload: ExplainPayload }
