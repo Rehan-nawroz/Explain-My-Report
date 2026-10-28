@@ -1,23 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Clock, RefreshCw } from "lucide-react";
 import AppFooter from "@/components/app-footer";
 import AppHeader from "@/components/app-header";
+import ErrorMessage from "@/components/error-message";
 import LoadingState from "@/components/loading-state";
 import QuotaNotice from "@/components/quota-notice";
 import ReportInput from "@/components/report-input";
 import ResultsView from "@/components/results-view";
-import { formatResetWindow } from "@/lib/format";
 import type {
   ExplainPayload,
   InputMode,
+  PageError,
   ReportExplanation,
   UploadedImage,
 } from "@/types/report";
 
 type Screen = "input" | "loading" | "results" | "error";
-type PageError = { status: number; message: string; resetsAt?: string };
+
 
 /**
  * Signed-in workspace. The server component (app/page.tsx) owns the auth
@@ -165,81 +165,14 @@ export default function AppWorkspace({
       )}
 
       {screen === "error" && error && (
-        <main className="flex flex-1 items-center justify-center px-4 py-12">
-          <div className="rise-in w-full max-w-xl rounded-2xl border border-line-soft bg-surface p-8 text-center sm:p-10">
-            <div
-              className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full border ${
-                error.status === 429
-                  ? "border-zinc-700/60 bg-[#27272a] text-zinc-300"
-                  : "border-amber-500/20 bg-[#2a2216] text-amber-300"
-              }`}
-            >
-              {error.status === 429 ? (
-                <Clock className="h-7 w-7" aria-hidden />
-              ) : (
-                <AlertTriangle className="h-7 w-7" aria-hidden />
-              )}
-            </div>
-
-            <h2 className="mt-6 text-[22px] font-semibold tracking-tight text-white">
-              {error.status === 429
-                ? "You've used all 3 explanations from the last 24 hours."
-                : error.status === 401
-                  ? "Your session ended."
-                  : "We couldn't explain that report right now."}
-            </h2>
-            <p className="mt-3 text-body leading-6 text-ink-soft">
-              {error.status === 401
-                ? "Sign in again to continue."
-                : error.message}
-            </p>
-
-            {error.status === 429 && error.resetsAt && (
-              <p className="mt-3 text-caption text-ink-muted">
-                Your next explanation unlocks in{" "}
-                {formatResetWindow(error.resetsAt)}.
-              </p>
-            )}
-
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              {error.status === 401 ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.location.href = "/";
-                  }}
-                  className="rounded-full bg-[#f4f4f5] px-8 py-3 text-sm font-semibold text-[#131314] transition-colors hover:bg-white"
-                >
-                  Sign in again
-                </button>
-              ) : (
-                error.status !== 429 && (
-                  <button
-                    type="button"
-                    onClick={explain}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#f4f4f5] px-8 py-3 text-sm font-semibold text-[#131314] transition-colors hover:bg-white"
-                  >
-                    <RefreshCw className="h-[18px] w-[18px]" aria-hidden />
-                    Try again
-                  </button>
-                )
-              )}
-              <button
-                type="button"
-                onClick={() => setScreen("input")}
-                className="rounded-full border border-line-strong bg-surface-elevated px-8 py-3 text-sm font-medium text-ink transition-colors hover:bg-surface-high"
-              >
-                Back to my report
-              </button>
-            </div>
-
-            {error.status !== 429 && error.status !== 401 && (
-              <p className="mt-6 text-caption text-ink-muted">
-                Your daily limit was not charged.
-              </p>
-            )}
-          </div>
-        </main>
+        <ErrorMessage
+          error={error}
+          onRetry={explain}
+          onSignInAgain={() => {
+            window.location.href = "/";
+          }}
+          onBack={() => setScreen("input")}
+        />
       )}
 
       <AppFooter />
