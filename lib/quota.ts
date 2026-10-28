@@ -1,15 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseEnv } from "@/lib/env";
 
-/**
- * Rolling 24-hour quota: at most DAILY_LIMIT explanations per user.
- *
- * Reservation happens in ONE database statement (the `try_reserve` RPC,
- * security-invoker so RLS still applies) before any LLM call, serialized
- * per user with an advisory lock so two concurrent requests cannot both
- * take the last slot. Report contents never touch this module — only
- * user id and text/image kind.
- */
 
 export const DAILY_LIMIT = 3;
 export const QUOTA_WINDOW_MS = 86_400_000; // 24h rolling window
@@ -18,12 +9,9 @@ export type QuotaResult =
   | { ok: true; usageId: string }
   | { ok: false; resetsAt: string };
 
-/**
- * Minimal storage surface so tests run against a fake. The real
- * implementation wraps a Supabase client (`createQuotaDB`).
- */
+
 export interface QuotaDB {
-  /** Single atomic statement: reserve a slot or report the oldest in-window row. */
+  
   tryReserve(input: {
     userId: string;
     kind: "text" | "image";
@@ -32,11 +20,7 @@ export interface QuotaDB {
   deleteUsage(usageId: string): Promise<void>;
 }
 
-/**
- * Reserve one slot for `userId`. Exactly one `tryReserve` call — never a
- * check-then-insert from the client. Returns `resetsAt` as the instant the
- * oldest in-window row ages out (fallback: now + 24h).
- */
+
 export async function reserveQuota(
   db: QuotaDB,
   userId: string,
@@ -52,11 +36,7 @@ export async function reserveQuota(
   return { ok: false, resetsAt: new Date(base + QUOTA_WINDOW_MS).toISOString() };
 }
 
-/**
- * Refund a reserved slot after an LLM/schema failure. Uses the service-role
- * key (no client session here); throws on failure after logging only the
- * usage id — callers treat a failed refund as non-fatal.
- */
+
 export async function refundQuota(
   usageId: string,
   db?: QuotaDB,
@@ -74,7 +54,43 @@ export async function refundQuota(
   }
 }
 
-/** Real QuotaDB backed by any Supabase client (session client for reserve). */
+
+export function summarizeUsage(inWindowIso: string[]): {
+  used: number;
+  left: number;
+  resetsAt: string | null;
+} {
+  const used = inWindowIso.length;
+  const left = Math.max(0, DAILY_LIMIT - used);
+  if (used < DAILY_LIMIT) return { used, left, resetsAt: null };
+
+  const oldest = [...inWindowIso].sort(
+    (a, b) => Date.parse(a) - Date.parse(b),
+  )[0];
+  const parsed = oldest ? Date.parse(oldest) : Number.NaN;
+  const base = Number.isFinite(parsed) ? parsed : Date.now();
+  return { used, left, resetsAt: new Date(base + QUOTA_WINDOW_MS).toISOString() };
+}
+
+
+export async function readQuota(client: SupabaseClient): Promise<{
+  used: number;
+  left: number;
+  resetsAt: string | null;
+}> {
+  const since = new Date(Date.now() - QUOTA_WINDOW_MS).toISOString();
+  const { data, error } = await client
+    .from("report_usage")
+    .select("created_at")
+    .gte("created_at", since)
+    .order("created_at", { ascending: true });
+  if (error) {
+    throw new Error(`quota read failed: ${error.message}`);
+  }
+  return summarizeUsage((data ?? []).map((row) => String(row.created_at)));
+}
+
+
 export function createQuotaDB(client: SupabaseClient): QuotaDB {
   return {
     async tryReserve({ kind }) {
@@ -99,7 +115,7 @@ export function createQuotaDB(client: SupabaseClient): QuotaDB {
   };
 }
 
-/** Service-role QuotaDB for the refund path (no cookies, no session). */
+
 export function createServiceQuotaDB(): QuotaDB {
   const { url, secretKey } = requireSupabaseEnv();
   const admin = createClient(url, secretKey, {
