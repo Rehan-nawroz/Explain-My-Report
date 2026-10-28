@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { contentSecurityPolicy } from "@/lib/security";
 
 /**
  * Session refresh at the network boundary (Next 16's `proxy.ts`,
@@ -40,6 +41,19 @@ export async function updateSession(request: NextRequest) {
   // Refreshes expired tokens before verifying; this is what keeps users
   // signed in across server-rendered requests.
   await supabase.auth.getClaims();
+
+  // Baseline headers come from next.config; the CSP is set here because
+  // config-level CSP did not reach responses in this Next version.
+  // Development is the only environment that must skip it (HMR uses eval and
+  // websockets). Vercel always gets the policy, even if NODE_ENV is wrong.
+  const isDevelopment =
+    process.env.NODE_ENV === "development" && process.env.VERCEL !== "1";
+  if (!isDevelopment) {
+    supabaseResponse.headers.set(
+      "Content-Security-Policy",
+      contentSecurityPolicy({ secure: request.nextUrl.protocol === "https:" }),
+    );
+  }
 
   // IMPORTANT: return the response that carries the refreshed cookies —
   // an earlier response would sign the user out on the next request.
