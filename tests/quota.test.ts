@@ -4,6 +4,7 @@ import {
   QUOTA_WINDOW_MS,
   refundQuota,
   reserveQuota,
+  summarizeUsage,
   type QuotaDB,
 } from "@/lib/quota";
 
@@ -80,6 +81,37 @@ describe("reserveQuota", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("summarizeUsage", () => {
+  it("counts used slots and has no resetsAt under the limit", () => {
+    const summary = summarizeUsage([
+      "2026-10-27T08:00:00.000Z",
+      "2026-10-27T09:00:00.000Z",
+    ]);
+    expect(summary).toEqual({ used: 2, left: 1, resetsAt: null });
+  });
+
+  it("resets when the limit is spent, from the oldest in-window row", () => {
+    const summary = summarizeUsage([
+      "2026-10-27T11:00:00.000Z",
+      "2026-10-27T09:00:00.000Z",
+      "2026-10-27T10:00:00.000Z",
+    ]);
+    expect(summary.used).toBe(3);
+    expect(summary.left).toBe(0);
+    expect(summary.resetsAt).toBe("2026-10-28T09:00:00.000Z");
+  });
+
+  it("never reports a negative balance", () => {
+    const summary = summarizeUsage([
+      "2026-10-27T09:00:00.000Z",
+      "2026-10-27T10:00:00.000Z",
+      "2026-10-27T11:00:00.000Z",
+      "2026-10-27T12:00:00.000Z",
+    ]);
+    expect(summary.left).toBe(0);
   });
 });
 
