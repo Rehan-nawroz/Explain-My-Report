@@ -1,4 +1,6 @@
+import AppWorkspace from "@/components/app-workspace";
 import AuthSignIn from "@/components/auth-signin";
+import { readQuota } from "@/lib/quota";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function Home() {
@@ -11,13 +13,22 @@ export default async function Home() {
     return <AuthSignIn />;
   }
 
+  let left = 3;
+  let resetsAt: string | null = null;
+  try {
+    const quota = await readQuota(supabase);
+    left = quota.left;
+    resetsAt = quota.resetsAt;
+  } catch {
+    // A failed count must not block the input screen — /api/explain
+    // re-checks the quota atomically before spending anything.
+  }
+
   return (
-    <main className="mx-auto max-w-2xl px-6 py-16">
-      <h1 className="text-3xl font-semibold">Explain My Report</h1>
-      <p className="mt-4 text-neutral-600">
-        Signed in as {user.email ?? "unknown"} — the report input flow arrives
-        in Tasks 9–11.
-      </p>
-    </main>
+    <AppWorkspace
+      email={user.email ?? "your account"}
+      initialLeft={left}
+      initialResetsAt={resetsAt}
+    />
   );
 }
