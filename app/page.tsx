@@ -3,14 +3,27 @@ import AuthSignIn from "@/components/auth-signin";
 import { readQuota } from "@/lib/quota";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return <AuthSignIn />;
+    return (
+      <AuthSignIn
+        initialError={
+          error === "sign_in_failed"
+            ? "We couldn't complete sign-in. Please try again."
+            : null
+        }
+      />
+    );
   }
 
   let left = 3;

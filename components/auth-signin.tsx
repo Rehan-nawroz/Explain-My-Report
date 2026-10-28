@@ -11,11 +11,15 @@ import { createClient } from "@/lib/supabase/client";
  * One hero card: headline, boundary pill, Google, "or", magic link.
  * Authentication mechanics are unchanged from Task 6.
  */
-export default function AuthSignIn() {
+export default function AuthSignIn({
+  initialError = null,
+}: {
+  initialError?: string | null;
+}) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError);
 
   async function signInWithGoogle() {
     setError(null);
@@ -202,7 +206,7 @@ export default function AuthSignIn() {
       <footer className="w-full border-t border-[#2f3336]/60 bg-canvas px-6 py-6 text-center">
         <p className="mx-auto max-w-xl text-caption leading-relaxed text-ink-muted">
           Educational explanation only — not medical advice, not a diagnosis.
-          Your report is never stored.
+          We never store report content.
         </p>
         <nav
           aria-label="Legal"

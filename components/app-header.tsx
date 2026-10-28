@@ -53,7 +53,7 @@ export default function AppHeader({
                 exhausted ? "bg-attention" : "bg-primary"
               }`}
             />
-            {quotaLeft} of 3 explanations left today
+            {quotaLeft} of 3 explanations left
           </span>
         </div>
 

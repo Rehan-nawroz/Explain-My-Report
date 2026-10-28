@@ -135,7 +135,7 @@ export default function ReportInput({
             ) : (
               <p className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted">
                 <Lock className="h-3.5 w-3.5" aria-hidden />
-                Your report is never stored.
+                We never store report content.
               </p>
             )}
 
@@ -168,7 +168,7 @@ export default function ReportInput({
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-semibold text-[#a1a1aa]">
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="h-[15px] w-[15px] text-ink-muted" aria-hidden />
-            Nothing stored on our servers
+            We never store report content
           </span>
           <span className="flex items-center gap-1.5">
             <Stethoscope className="h-[15px] w-[15px] text-ink-muted" aria-hidden />
@@ -179,6 +179,11 @@ export default function ReportInput({
             Actionable questions for your clinician
           </span>
         </div>
+
+        <p className="mt-4 max-w-xl text-center text-[11px] leading-relaxed text-ink-muted">
+          Processed by Google Gemini. Remove names, dates of birth, and other
+          identifiers before submitting.
+        </p>
       </div>
     </main>
   );

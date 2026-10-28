@@ -25,7 +25,7 @@ export default function AppFooter() {
           </Link>
         </nav>
         <p className="text-ink-muted">
-          Not medical advice · Nothing stored · Encrypted in transit
+          Not medical advice · Report content not stored by us · Encrypted in transit
         </p>
       </div>
     </footer>

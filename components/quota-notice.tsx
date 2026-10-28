@@ -38,7 +38,7 @@ export default function QuotaNotice({
     return (
       <p className="inline-flex items-center gap-1.5 rounded-full border border-amber-600/30 bg-[#2a2218] px-3 py-1.5 text-caption font-medium text-amber-200">
         <Clock className="h-4 w-4 text-attention" aria-hidden />
-        Daily limit reached.
+        Limit reached.
         {resetLabel ? ` Next explanation in ${resetLabel}.` : ""}
       </p>
     );
@@ -56,7 +56,7 @@ export default function QuotaNotice({
           </h2>
           <p className="mt-0.5 text-caption text-[#c4c7c5]">
             Free accounts include 3 explanations in any 24-hour window, so
-            clinical compute stays fair for everyone.
+            AI usage stays fair for everyone.
             {resetLabel ? ` Your next one unlocks in ${resetLabel}.` : ""}
           </p>
         </div>

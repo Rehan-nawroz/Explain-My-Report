@@ -106,12 +106,12 @@ export default function ErrorMessage({
 
         {canRetry && (
           <p className="mt-6 text-caption text-ink-muted">
-            Your daily limit was not charged.
+            Your remaining allowance is refreshed automatically.
           </p>
         )}
         {isBadInput && (
           <p className="mt-6 text-caption text-ink-muted">
-            Your report text is still here — edit it below and try again.
+            Your input is still here — adjust it and try again.
           </p>
         )}
       </div>

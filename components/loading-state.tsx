@@ -22,7 +22,7 @@ export default function LoadingState() {
           Translating into plain language.
         </p>
         <p className="mt-6 text-caption text-ink-muted">
-          This usually takes a few seconds. Your report is never stored.
+          This usually takes a few seconds. We never store your report.
         </p>
       </div>
     </main>
