@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BrainCircuit,
@@ -11,9 +10,9 @@ import {
   ShieldCheck,
   Stethoscope,
 } from "lucide-react";
+import QuotaNotice from "@/components/quota-notice";
 import SampleReportButton from "@/components/sample-report-button";
 import UploadDropzone from "@/components/upload-dropzone";
-import { formatResetWindow } from "@/lib/format";
 import { MAX_TEXT_CHARS } from "@/lib/limits";
 import type { InputMode, UploadedImage } from "@/types/report";
 
@@ -47,20 +46,6 @@ export default function ReportInput({
   quotaLeft: number;
   resetsAt: string | null;
 }) {
-  // Computed after mount only, so server and client HTML agree.
-  const [resetLabel, setResetLabel] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (quotaLeft > 0 || !resetsAt) {
-      setResetLabel(null);
-      return;
-    }
-    const update = () => setResetLabel(formatResetWindow(resetsAt));
-    update();
-    const id = window.setInterval(update, 30_000);
-    return () => window.clearInterval(id);
-  }, [quotaLeft, resetsAt]);
-
   const exhausted = quotaLeft <= 0;
   const nearLimit = text.length > MAX_TEXT_CHARS * 0.95;
   const hasPayload = mode === "text" ? text.trim().length > 0 : Boolean(image);
@@ -146,11 +131,7 @@ export default function ReportInput({
 
           <div className="mt-6 flex flex-col items-center gap-3 border-t border-line-soft pt-5 sm:flex-row sm:justify-between">
             {exhausted ? (
-              <p className="inline-flex items-center gap-1.5 rounded-full border border-amber-600/30 bg-[#2a2218] px-3 py-1.5 text-caption font-medium text-amber-200">
-                <Lock className="h-4 w-4 text-attention" aria-hidden />
-                Daily limit reached.
-                {resetLabel ? ` Next explanation in ${resetLabel}.` : ""}
-              </p>
+              <QuotaNotice variant="compact" resetsAt={resetsAt} />
             ) : (
               <p className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted">
                 <Lock className="h-3.5 w-3.5" aria-hidden />
