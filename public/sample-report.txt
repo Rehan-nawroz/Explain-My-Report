@@ -1,0 +1,18 @@
+SURGICAL PATHOLOGY REPORT
+
+SPECIMEN: Right breast, lumpectomy with sentinel lymph node biopsy.
+CLINICAL HISTORY: Palpable mass, 2 cm, upper outer quadrant. Screening mammogram BI-RADS 4C.
+
+MICROSCOPIC DESCRIPTION:
+Sections show an invasive ductal carcinoma measuring 2.1 cm in greatest dimension, with moderate nuclear pleomorphism and a mitotic rate of 8 per 10 high-power fields. Lymphovascular invasion is present at the periphery of the tumor. All inked surgical margins are negative for carcinoma; the closest margin is 4 mm at the deep aspect. Two sentinel lymph nodes were identified and are negative for metastatic carcinoma (0/2) by routine H&E and cytokeratin immunohistochemistry.
+
+IMMUNOHISTOCHEMISTRY:
+Estrogen receptor: positive, 90% of tumor nuclei, strong intensity.
+Progesterone receptor: positive, 60% of tumor nuclei, moderate intensity.
+HER2 by immunohistochemistry: score 2+, equivocal. Reflex FISH testing is pending.
+
+FINAL DIAGNOSIS:
+1. Invasive ductal carcinoma, right breast, 2.1 cm, margins negative.
+2. Lymphovascular invasion present.
+3. Sentinel lymph nodes negative (0/2).
+4. Estrogen and progesterone receptor positive; HER2 equivocal, FISH pending.
