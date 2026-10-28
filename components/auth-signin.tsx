@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { Info, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -171,6 +172,24 @@ export default function AuthSignIn() {
               </form>
             )}
 
+            <p className="text-center text-caption leading-relaxed text-ink-muted">
+              By continuing, you agree to our{" "}
+              <Link
+                href="/terms"
+                className="text-ink-soft underline decoration-line-strong underline-offset-4 transition-colors hover:text-primary"
+              >
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy"
+                className="text-ink-soft underline decoration-line-strong underline-offset-4 transition-colors hover:text-primary"
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
+
             {error && (
               <p className="text-center text-caption text-danger" role="alert">
                 {error}
@@ -185,6 +204,26 @@ export default function AuthSignIn() {
           Educational explanation only — not medical advice, not a diagnosis.
           Your report is never stored.
         </p>
+        <nav
+          aria-label="Legal"
+          className="mt-3 flex items-center justify-center gap-4 text-caption"
+        >
+          <Link
+            href="/privacy"
+            className="text-ink-soft transition-colors hover:text-primary"
+          >
+            Privacy Policy
+          </Link>
+          <span className="text-line-strong" aria-hidden>
+            ·
+          </span>
+          <Link
+            href="/terms"
+            className="text-ink-soft transition-colors hover:text-primary"
+          >
+            Terms of Service
+          </Link>
+        </nav>
       </footer>
     </div>
   );
