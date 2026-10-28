@@ -11,7 +11,11 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get("next") ?? "/";
 
   // Same-origin redirect only — never an external URL (open-redirect guard).
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  // Reject protocol-relative paths, backslash variants (URL parsers normalize
+  // "\" to "/", so "/\\xyz.com" would otherwise become "//xyz.com"),
+  // control characters, and anything that is not a plain absolute path.
+  const safeNext =
+    /^\/(?![/\\])[\x20-\x7e]*$/.test(next) ? next : "/";
 
   if (code) {
     const supabase = await createClient();
