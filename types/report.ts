@@ -23,3 +23,10 @@ export type UploadedImage = {
 export type ExplainPayload =
   | { kind: "text"; text: string }
   | { kind: "image"; imageBase64: string; mimeType: ImageMime };
+
+/** A failed /api/explain response, as shown by the error screen. */
+export type PageError = {
+  status: number;
+  message: string;
+  resetsAt?: string;
+};
