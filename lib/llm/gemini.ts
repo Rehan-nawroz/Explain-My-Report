@@ -53,7 +53,12 @@ export function createGeminiProvider(config: GeminiConfig): LLMProvider {
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
             contents: [{ role: "user", parts: buildParts(args) }],
-            generationConfig: { responseMimeType: "application/json" },
+            generationConfig: {
+              responseMimeType: "application/json",
+              // Bounds cost/latency and prevents a prompt-injected response
+              // from streaming an arbitrarily long object.
+              maxOutputTokens: 2048,
+            },
           }),
           signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         });

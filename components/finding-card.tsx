@@ -58,6 +58,9 @@ export default function FindingCard({ finding }: { finding: Finding }) {
         <div className="mt-2.5 rounded-xl border border-line-soft bg-inset p-3.5 font-mono text-[12px] leading-[18px] text-zinc-300">
           “{finding.reportQuote}”
         </div>
+        <p className="mt-2 text-[11px] leading-4 text-ink-muted">
+          AI-selected excerpt — compare it with your original report.
+        </p>
       </details>
     </article>
   );
